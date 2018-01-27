@@ -3,13 +3,11 @@ program Serpinski;
 // Описание алгоритма и параметры крвой см.
 // http://inf.1september.ru/1999/art/zlat2.htm
 
-uses GraphABC, FormsABC;
-
-const
-  delay = 50;      // Задержка (мс) после рисования каждого сегмента
+uses GraphABC, FormsABC, System;
 
 var
-  h: word;         // Длина горизонтальной (и вертикальной) ПРОЕКЦИ наклонных отрезков кривой
+  delay := 50;  // Задержка (мс) после рисования каждого сегмента
+  h: word;      // Длина горизонтальной (и вертикальной) ПРОЕКЦИ наклонных отрезков кривой
 
   // поля формы
   nField := new IntegerField('Порядок кривой:');
@@ -113,12 +111,18 @@ begin
   DrawSerpinskiCurve(nField.Value);
 end;
 
+procedure CloseGraphMainForm(sender: object; e: EventArgs);
+begin
+  GraphABC.MainForm.Close;
+end;
+
 BEGIN
+  GraphABC.MainForm.Hide;
   GraphABC.SetWindowPos(0,0);
   GraphABC.SetWindowSize(600,600);
-  GraphABC.Window.Caption := 'Кривая Серпинского';
-  GraphABC.MainForm.Hide;
+  GraphABC.Window.Caption := 'Рисунок Кривой Серпинского';
   FormsABC.MainForm.Title := 'Кривая Серпинского';
+  FormsABC.MainForm.NetForm.Closed += CloseGraphMainForm; 
   nField.Value := 3;
   drawButton.Click += DrawButtonClick;
 END.
