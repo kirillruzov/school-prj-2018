@@ -3,20 +3,18 @@ program Serpinski;
 // Описание алгоритма и параметры крвой см.
 // http://inf.1september.ru/1999/art/zlat2.htm
 
-uses GraphABC;
+uses GraphABC, FormsABC;
 
 const
   delay = 50;      // Задержка (мс) после рисования каждого сегмента
 
 var
-  n: byte;         // Порядок кривой
-  Hscr,Wscr: word; // Высота и ширна экрана
-  Xlu,Ylu: word;   // Координаты левой верхней точки опорного квадрата
-  x0,y0: word;     // Координаты начальной точки кривой
-  A: word;         // Длина стороны опорного квадрата
-  PrA: real;       // Длина стороны опорного квадрата в % от высоты экрана
   h: word;         // Длина горизонтальной (и вертикальной) ПРОЕКЦИ наклонных отрезков кривой
-  Z: word;         // Коэффициент диагонали кривой Серпинского
+
+  // поля формы
+  nField := new IntegerField('Порядок кривой:');
+  fb1 := new FlowBreak;
+  drawButton := new Button('Нарисовать');
   
 // Функция, рекурсивно вычисляющая коэффициент  диагонали кривой Серпинского (Z)
 function calcZ(i:byte):word;
@@ -68,16 +66,21 @@ Procedure LineGH;
    end
 end;
 
-BEGIN
-
+// n: порядок кривой
+procedure DrawSerpinskiCurve(n: byte);
+var
+  Hscr,Wscr: word; // Высота и ширна окна
+  Xlu,Ylu: word;   // Координаты левой верхней точки опорного квадрата
+  x0,y0: word;     // Координаты начальной точки кривой
+  A: word;         // Длина стороны опорного квадрата
+  PrA: real;       // Длина стороны опорного квадрата в % от высоты экрана
+  Z: word;         // Коэффициент диагонали кривой Серпинского
+begin
   Window.SetSize(600,600);
   
-  // Высота и ширина экрана
+  // Высота и ширина окна
   Hscr:=Window.Height;
   Wscr:=Window.Width;
-
-  // Порядок кривой
-  n := 3;
 
   // Длина стороны опорного квадрата в % от высоты экрана
   PrA := 100;
@@ -93,7 +96,7 @@ BEGIN
 
   // Находим координаты левой верхней точки опорного квадрата
   Xlu:=Hscr div 2 - A div 2;
-  Ylu:=Hscr div 2 - A div 2;
+  Ylu:=Wscr div 2 - A div 2;
 
   // Находим координаты начальной точки кривой
   y0:=Ylu; x0:=Xlu+h;
@@ -101,5 +104,21 @@ BEGIN
 
   LineAB(n); SegmBC; LineCD(n); SegmDE;
   LineEF(n); SegmFG; LineGH(n); SegmHA;
-  
+
+end;
+
+procedure DrawButtonClick;
+begin
+  GraphABC.MainForm.Show;
+  DrawSerpinskiCurve(nField.Value);
+end;
+
+BEGIN
+  GraphABC.SetWindowPos(0,0);
+  GraphABC.SetWindowSize(600,600);
+  GraphABC.Window.Caption := 'Кривая Серпинского';
+  GraphABC.MainForm.Hide;
+  FormsABC.MainForm.Title := 'Кривая Серпинского';
+  nField.Value := 3;
+  drawButton.Click += DrawButtonClick;
 END.
